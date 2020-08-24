@@ -1,0 +1,9 @@
+README.rst
+setup.py
+snow_challenge/__init__.py
+snow_challenge/main.py
+snow_challenge.egg-info/PKG-INFO
+snow_challenge.egg-info/SOURCES.txt
+snow_challenge.egg-info/dependency_links.txt
+snow_challenge.egg-info/requires.txt
+snow_challenge.egg-info/top_level.txt
