@@ -13,4 +13,4 @@ class User(Base):
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
 
-    site_favorites = relationship("Site", secondary="favorites")
+    favorites = relationship("Site", secondary="favorites")

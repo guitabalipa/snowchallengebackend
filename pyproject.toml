@@ -16,6 +16,9 @@ python-jose = "^3.2.0"
 passlib = "^1.7.2"
 bcrypt = "^3.2.0"
 cryptography = "^3.0"
+boto3 = "^1.14.48"
+werkzeug = "^0.12.2"
+python-dotenv = "^0.14.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

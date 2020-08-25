@@ -1,6 +1,8 @@
+from typing import List
 from pydantic import BaseModel
 
 from app.schemas.category import Category
+from app.schemas.site_image import SiteImage
 
 
 class SiteBase(BaseModel):
@@ -21,6 +23,7 @@ class SiteUpdate(SiteBase):
 class Site(SiteBase):
     id: int
     category: Category
+    images: List[SiteImage] = []
 
     class Config:
         orm_mode = True

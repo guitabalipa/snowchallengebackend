@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.db.base_class import Base
+from app.models.site_image import SiteImage
+from app.models.category import Category
 
 
 class Site(Base):
@@ -13,4 +15,5 @@ class Site(Base):
     lon = Column(String, index=True)
     category_id = Column(Integer, ForeignKey("categories.id"))
 
-    category = relationship("Category")
+    category = relationship(Category)
+    images = relationship(SiteImage)
