@@ -1,11 +1,11 @@
-from app.services.storage.s3 import upload_file_to_s3
+from app.services.storage.s3 import upload_file_to_s3, create_pre_signed_url
 
 from typing import Any, List
 
 from fastapi import APIRouter, Depends, HTTPException, File, Form, UploadFile, status
 from sqlalchemy.orm import Session
 
-from app.schemas.site import Site, SiteCreate, SiteUpdate
+from app.schemas.site import Site, SiteCreate, SiteUpdate, SiteOut
 from app.schemas.site_picture import SitePicture, SitePictureCreate
 from app.crud import crud_site
 from app.crud import crud_site_picture
@@ -63,14 +63,24 @@ def update(
     return user
 
 
-@router.get("/", response_model=List[Site])
+@router.get("/", response_model=List[SiteOut])
 def read(skip: int = 0, limit: int = 100, db: Session = Depends(deps.get_db)):
-    return crud_site.site.get_multi(db, skip=skip, limit=limit)
+    sites = crud_site.site.get_multi(db, skip=skip, limit=limit)
+    mapped_sites = []
+    for site in sites:
+        mapped_sites.append(map_site_pics(site))
+
+    return mapped_sites
 
 
-@router.get("/name/", response_model=List[Site])
+@router.get("/name/", response_model=List[SiteOut])
 def search_by_name(db: Session = Depends(deps.get_db), name: str = ""):
-    return crud_site.site.search_by_name(db=db, name=name)
+    sites = crud_site.site.search_by_name(db=db, name=name)
+    mapped_sites = []
+    for site in sites:
+        mapped_sites.append(map_site_pics(site))
+
+    return mapped_sites
 
 
 @router.post("/{site_id}/picture/")
@@ -128,3 +138,19 @@ def delete_picture(site_id: int, picture_id: int,
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Failed to delete file",
         )
+
+
+def map_site_pics(site: Site):
+    pics = site.pictures
+    urls_pics = []
+    for pic in pics:
+        urls_pics.append(create_pre_signed_url(pic.name))
+
+    return SiteOut(
+        id=site.id,
+        category=site.category,
+        name=site.name,
+        lat=site.lat,
+        lon=site.lon,
+        pictures=urls_pics
+    )

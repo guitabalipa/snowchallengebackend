@@ -27,3 +27,12 @@ class Site(SiteBase):
 
     class Config:
         orm_mode = True
+
+
+class SiteOut(BaseModel):
+    id: int
+    category: Category
+    name: str
+    lat: str
+    lon: str
+    pictures: List[str] = []

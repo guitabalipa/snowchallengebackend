@@ -63,7 +63,7 @@ def create_pre_signed_url(object_name):
         print(e)
         raise HTTPException(
             status_code=404,
-            detail="Failed to upload image",
+            detail="Failed to get url",
         )
 
     return url
