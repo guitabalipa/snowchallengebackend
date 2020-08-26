@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     AWS_PRE_SIGNED_URL_EXPIRE_MINUTES: int = 60 * 24
     AWS_ACCESS_KEY_ID: str
     AWS_SECRET_ACCESS_KEY: str
-    AWS_S3_SITE_IMAGE_BUCKET: str
+    AWS_S3_IMAGE_BUCKET: str
 
     POSTGRES_SERVER: str
     POSTGRES_USER: str

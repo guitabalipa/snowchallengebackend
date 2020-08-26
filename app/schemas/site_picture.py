@@ -1,21 +1,21 @@
 from pydantic import BaseModel
 
 
-class SiteImageBase(BaseModel):
+class SitePictureBase(BaseModel):
     name: str
 
 
-class SiteImageCreate(SiteImageBase):
+class SitePictureCreate(SitePictureBase):
     site_id: int
     user_created_id: int
     pass
 
 
-class SiteImageUpdate(SiteImageBase):
+class SitePictureUpdate(SitePictureBase):
     pass
 
 
-class SiteImage(SiteImageBase):
+class SitePicture(SitePictureBase):
     id: int
 
     class Config:
