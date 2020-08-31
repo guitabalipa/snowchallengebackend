@@ -3,7 +3,6 @@ import time
 
 from botocore.exceptions import ClientError
 
-from fastapi import HTTPException
 from app.core.config import settings
 
 
@@ -20,11 +19,7 @@ def upload_file_to_s3(file, content_type):
         bucket = s3.Bucket(settings.AWS_S3_IMAGE_BUCKET)
         bucket.Object(filename).put(Body=file.file.read())
     except Exception as e:
-        print(e)
-        raise HTTPException(
-            status_code=404,
-            detail="Failed to upload file",
-        )
+        raise e
 
     return filename
 
@@ -39,7 +34,7 @@ def delete_file_from_s3(filename):
         bucket = s3.Bucket(settings.AWS_S3_IMAGE_BUCKET)
         bucket.Object(filename).delete()
     except Exception as e:
-        return e
+        raise e
 
     return filename
 
@@ -60,10 +55,6 @@ def create_pre_signed_url(object_name):
             ExpiresIn=settings.AWS_PRE_SIGNED_URL_EXPIRE_MINUTES)
 
     except ClientError as e:
-        print(e)
-        raise HTTPException(
-            status_code=404,
-            detail="Failed to get url",
-        )
+        raise e
 
     return url

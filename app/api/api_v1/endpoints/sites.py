@@ -1,4 +1,6 @@
-from app.services.storage.s3 import upload_file_to_s3, create_pre_signed_url
+import geopy.distance
+
+from app.services.storage.s3 import upload_file_to_s3, create_pre_signed_url, delete_file_from_s3
 
 from typing import Any, List
 
@@ -34,16 +36,26 @@ def create_form(
 
     form_in = SiteCreate(name=name, lat=latitude, lon=longitude, category_id=category_id)
 
-    db_obj = crud_site.site.create(db=db, obj_in=form_in)
+    try:
+        db_obj = crud_site.site.create_site(db=db, obj_in=form_in)
 
-    for picture in pictures:
-        filename = upload_file_to_s3(picture, picture.content_type.split("/")[1])
-        crud_site_picture.site_picture.create(
-            db=db,
-            obj_in=SitePictureCreate(name=filename, site_id=db_obj.id, user_created_id=current_user.id)
+        for picture in pictures:
+            filename = upload_file_to_s3(picture, picture.content_type.split("/")[1])
+            crud_site_picture.site_picture.create_site_picture(
+                db=db,
+                obj_in=SitePictureCreate(name=filename, site_id=db_obj.id, user_created_id=current_user.id)
+            )
+
+        db.commit()
+        db.refresh(db_obj)
+
+        return map_site_pics(db_obj)
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=404,
+            detail="Failed to create site!",
         )
-
-    return db_obj
 
 
 @router.put("/{site_id}/", response_model=Site)
@@ -59,11 +71,11 @@ def update(
             status_code=404,
             detail="This site does not exist in the system",
         )
-    user = crud_site.site.update(db, db_obj=site, obj_in=site_in)
-    return user
+    site_updated = crud_site.site.update(db, db_obj=site, obj_in=site_in)
+    return map_site_pics(site_updated)
 
 
-@router.get("/", response_model=List[SiteOut])
+@router.get("/", response_model=List[Site])
 def read(skip: int = 0, limit: int = 100, db: Session = Depends(deps.get_db)):
     sites = crud_site.site.get_multi(db, skip=skip, limit=limit)
     mapped_sites = []
@@ -73,7 +85,7 @@ def read(skip: int = 0, limit: int = 100, db: Session = Depends(deps.get_db)):
     return mapped_sites
 
 
-@router.get("/name/", response_model=List[SiteOut])
+@router.get("/name/", response_model=List[Site])
 def search_by_name(db: Session = Depends(deps.get_db), name: str = ""):
     sites = crud_site.site.search_by_name(db=db, name=name)
     mapped_sites = []
@@ -81,6 +93,29 @@ def search_by_name(db: Session = Depends(deps.get_db), name: str = ""):
         mapped_sites.append(map_site_pics(site))
 
     return mapped_sites
+
+
+@router.get("/location/", response_model=List[Site])
+def get_nearby_sites(lat: str, lon: str, db: Session = Depends(deps.get_db)):
+    sites = crud_site.site.get_multi(db=db)
+
+    nearby_sites = []
+    for site in sites:
+        coord1 = (lat, lon)
+        coord2 = (site.lat, site.lon)
+
+        try:
+            dist = geopy.distance.distance(coord1, coord2).km
+        except Exception:
+            raise HTTPException(
+                status_code=404,
+                detail="Invalid Lat/Lon value!",
+            )
+
+        if dist < 5:
+            nearby_sites.append(map_site_pics(site))
+
+    return nearby_sites
 
 
 @router.post("/{site_id}/picture/")
@@ -130,13 +165,17 @@ def delete_picture(site_id: int, picture_id: int,
         )
 
     try:
-        deleted_picture = crud_site_picture.site_picture.delete_picture(db=db, id_pic=picture_id)
+        db_obj = crud_site_picture.site_picture.delete_picture(db=db, id_pic=picture_id)
+        delete_file_from_s3(db_obj.name)
 
-        return deleted_picture
+        db.commit()
+
+        return db_obj
     except Exception:
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Failed to delete file",
+            detail="Failed to delete image!",
         )
 
 
@@ -144,9 +183,9 @@ def map_site_pics(site: Site):
     pics = site.pictures
     urls_pics = []
     for pic in pics:
-        urls_pics.append(create_pre_signed_url(pic.name))
+        urls_pics.append(SitePicture(id=pic.id, name=create_pre_signed_url(pic.name)))
 
-    return SiteOut(
+    return Site(
         id=site.id,
         category=site.category,
         name=site.name,
