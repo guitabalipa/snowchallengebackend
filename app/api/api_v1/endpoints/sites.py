@@ -146,7 +146,7 @@ def delete_picture(site_id: int, picture_id: int,
         )
 
     try:
-        db_obj = crud_site_picture.site_picture.delete_picture(db=db, id_pic=picture_id)
+        db_obj = crud_site_picture.site_picture.delete_picture(db=db, id=picture_id)
         delete_file_from_s3(db_obj.name)
 
         db.commit()
