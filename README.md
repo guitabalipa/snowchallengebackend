@@ -1,5 +1,12 @@
 # Snowman Labs Backend Challenge
 
+
+Backend challenge created with FastAPI.
+
+
+
+https://github.com/tiangolo/fastapi
+
 https://github.com/snowmanlabs/backend-challenge
 
 
