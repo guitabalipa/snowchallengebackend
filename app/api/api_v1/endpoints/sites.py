@@ -17,41 +17,22 @@ from app.api import deps
 router = APIRouter()
 
 
-@router.post("/form/", response_model=Site)
-def create_form(
-        name: str = Form(...),
-        latitude: str = Form(...),
-        longitude: str = Form(...),
-        category_id: int = Form(...),
-        pictures: List[UploadFile] = File(...),
+@router.post("/", response_model=Site)
+def create(
+        site_in: SiteCreate,
         db: Session = Depends(deps.get_db),
         current_user: user_model.User = Depends(deps.get_current_active_user)
 ):
-    category = crud_site.site.get_by_name(db=db, name=name)
-    if category:
+    site = crud_site.site.get_by_name(db=db, name=site_in.name)
+    if site:
         raise HTTPException(
             status_code=400,
             detail="A site with this exact name already exists in the system.",
         )
 
-    form_in = SiteCreate(name=name, lat=latitude, lon=longitude, category_id=category_id)
-
     try:
-        db_obj = crud_site.site.create_site(db=db, obj_in=form_in)
-
-        for picture in pictures:
-            filename = upload_file_to_s3(picture, picture.content_type.split("/")[1])
-            crud_site_picture.site_picture.create_site_picture(
-                db=db,
-                obj_in=SitePictureCreate(name=filename, site_id=db_obj.id, user_created_id=current_user.id)
-            )
-
-        db.commit()
-        db.refresh(db_obj)
-
-        return map_site_pics(db_obj)
+        return crud_site.site.create(db=db, obj_in=site_in)
     except Exception:
-        db.rollback()
         raise HTTPException(
             status_code=404,
             detail="Failed to create site!",

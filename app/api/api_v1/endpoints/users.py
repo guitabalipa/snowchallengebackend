@@ -39,6 +39,7 @@ def update(
 ) -> Any:
     current_user_data = jsonable_encoder(current_user.as_dict())
     user_in = UserUpdate(**current_user_data)
+    user_in.password = None
     if password is not None:
         user_in.password = password
     if name is not None:
@@ -78,17 +79,23 @@ def create_favorite(
             detail="Site not found.",
         )
 
-    return crud_favorite.favorite.create_favorite(db=db, fav_create=favorite_in, user_id=current_user.id)
+    return crud_favorite.favorite.create_favorite(db=db, obj_in=favorite_in, user_id=current_user.id)
 
 
 @router.get("/me/favorites", response_model=List[Site])
 def read_favorite(current_user: user_model.User = Depends(deps.get_current_active_user)):
-    return current_user.site_favorites
+    return current_user.favorites
 
 
-@router.delete("/me/favorites")
+@router.delete("/me/favorites", response_model=Favorite)
 def delete_favorite(
         site_id: int,
         db: Session = Depends(deps.get_db),
         current_user: user_model.User = Depends(deps.get_current_active_user)):
+    favorite = crud_favorite.favorite.find_favorite(db, user_id=current_user.id, site_id=site_id)
+    if not favorite:
+        raise HTTPException(
+            status_code=400,
+            detail="Favorite not found.",
+        )
     return crud_favorite.favorite.delete(db=db, user_id=current_user.id, site_id=site_id)
