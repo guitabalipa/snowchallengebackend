@@ -41,13 +41,16 @@ Automatic interactive documentation with Swagger UI (from the OpenAPI backend): 
 Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
 
 
+Postmam collection: https://www.getpostman.com/collections/51d5bd978ee9e41f2cdd
+
+
 - stop stack
 
 ```bash
 docker-compose down
 ```
 
-- run tests
+Run Tests:
 
  - access bash:
  
