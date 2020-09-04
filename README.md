@@ -38,6 +38,8 @@ Backend, JSON based web API based on OpenAPI: http://localhost/api/
 
 Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost/docs
 
+Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
+
 
 - stop stack
 
