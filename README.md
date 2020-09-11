@@ -1,5 +1,12 @@
 # Snowman Labs Backend Challenge
 
+
+Backend challenge created with FastAPI.
+
+
+
+https://github.com/tiangolo/fastapi
+
 https://github.com/snowmanlabs/backend-challenge
 
 
@@ -31,6 +38,11 @@ Backend, JSON based web API based on OpenAPI: http://localhost/api/
 
 Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost/docs
 
+Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
+
+
+Postmam collection: https://www.getpostman.com/collections/51d5bd978ee9e41f2cdd
+
 
 - stop stack
 
@@ -38,7 +50,7 @@ Automatic interactive documentation with Swagger UI (from the OpenAPI backend): 
 docker-compose down
 ```
 
-- run tests
+Run Tests:
 
  - access bash:
  
