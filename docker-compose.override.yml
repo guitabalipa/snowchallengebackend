@@ -10,6 +10,8 @@ services:
       - '80:80'
     expose:
       - '80'
+    volumes:
+      - ./:/app
     environment:
       - SERVER_HOST=http://${DOMAIN}
     build:
