@@ -41,9 +41,6 @@ Automatic interactive documentation with Swagger UI (from the OpenAPI backend): 
 Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
 
 
-Postmam collection: https://www.getpostman.com/collections/51d5bd978ee9e41f2cdd
-
-
 - stop stack
 
 ```bash
@@ -63,3 +60,12 @@ docker-compose exec backend bash
 ```bash
 pytest
 ```
+
+
+
+
+Heroku: https://vast-anchorage-57708.herokuapp.com/docs#/
+
+Postmam collection: https://www.getpostman.com/collections/51d5bd978ee9e41f2cdd
+
+
